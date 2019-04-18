@@ -1,0 +1,10 @@
+name: pokemon
+title:
+username:
+account: pokemon
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 771685
+bundleId: 1921307
+url: https://pokemon.shinyapps.io/pokemon/
+when: 1551925763.62808

@@ -1,0 +1,179 @@
+---
+title: "Pokemon"
+author: "Fahada_Alsehami"
+date: "2/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE,echo = T,tidy =  FALSE,highlight = TRUE)
+options(digits=3)
+```
+
+
+```{r}
+# Load the required packsges into memory:
+library(readr)
+library(pander)
+library(tidyverse)
+library(janitor)
+library(dplyr, warn.conflicts = F)
+library(gridExtra)
+library(plyr)
+library(reshape2)
+library(rsconnect)
+library(knitr)
+```
+
+
+
+
+```{r}
+# Setup Pokemon project to Shiny.io server
+rsconnect::setAccountInfo(name='pokemon',
+			  token='903D7CF589541470913C6979207B0113',
+			  secret='yVUCDBa6Y4uErHCqgiRqRxgkhkAmdwa+eycbDpRp')
+```
+
+```{r}
+# Deploy Pokemon project to Shiny.io server
+library(rsconnect)
+library(shiny)
+deployApp()
+```
+
+```{r}
+Pokemon <- read_csv("Pokemon.csv")
+View(Pokemon)
+```
+
+```{r}
+##Dataset including variables were recorded:
+head(Pokemon)
+```
+
+
+
+```{r}
+#Rename some variables to make our variable's name handy
+Pokemon <- rename(Pokemon, c(`Type 1` = "Type1", `Type 2` = "Type2"))
+Pokemon
+```
+
+
+#Express the Generation column as a factor
+```{r}
+#Vectorize function of the Generation as a factor
+Pokemon$Generation <- as.factor(Pokemon$Generation)
+Pokemon
+```
+
+```{r}
+#The structure of Pokemon dataset
+str(Pokemon)
+```
+
+
+#2 Pre-processing Pokemon Dataset
+
+#2.1 
+```{r}
+#Subset Pokemon dataset to fit our purposes in terms of plot and analysis
+filterTypeOf <- function(data, type){
+  df <- filter(data, Type1 == type | Type2 == type)
+  return(df)
+}
+
+type <- data.frame()
+starters <- data.frame()
+
+for(i in 1:3){
+  df <- filterTypeOf(gen1, type.string[i])
+  df$Type <- type.string[i]
+  starters <- rbind(starters, df[1:2,])
+  type <- rbind(type, df)
+}
+
+type$Type <- as.factor(type$Type)
+starters$Type <- as.factor(starters$Type)
+```
+
+#2.1 (Pokemon Type 1)
+```{r}
+levels(Pokemon$Type1)
+```
+
+```{r}
+# Here will plot how many primary Pokemon of Type1 has by using Geom bar:
+ggplot(Pokemon, aes(x=fct_infreq(Type1))) + 
+  geom_bar(fill="#fff00f", colour="red") +
+  labs(x="Type1", y="Frequency") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+```
+# We have about XXXXX
+
+
+
+```{r}
+# Here will plot how many primary Pokemon of Type2 has by using Geom bar:
+ggplot(Pokemon, aes(x=fct_infreq(Type2))) + 
+  geom_bar(fill="#ff0011", colour="blue") +
+  labs(x="Type2", y="Frequency") +
+  theme(axis.text.x=element_text(angle=45, hjust=1))
+```
+# We have XXXX, and comparing with Type1 XXXXX
+
+
+```{r}
+#Here will define three types of Pokemons 
+type.string <- c('Grass', 'Fire', 'Water')
+type.colors <- c('#27A632', '#F07800', '#94D6CE')
+type.subcolors <- c('#27938E','#D81800','#56A9ED')
+theme_set(theme_minimal(base_size = 15))
+```
+
+```{r}
+# Here will show the contingency table for both of Pokemon's Type1 & Type2
+corr <- cor(gen1[,6:11])
+corrplot(corr, 
+         method='color',
+         order='hclust',
+         title='Correlation between Statistics',
+         mar=c(0,0,2,0))
+```
+
+
+
+
+
+
+#Introduction
+
+#As DS612 project , XXXX
+
+
+
+
+
+
+
+
+#Our study intent to predict the XXX
+Our objectives are :
+1. 
+2. 
+3. 
+
+
+
+```{r}
+# Extract records
+# Pokemon_1 <- 
+#      Pokemon %>%
+#      #Sort Pokemon Type1 by Atack 
+#      inner_join(Pokemon, by="Attack"
+#      print(Pokemon_1)
+     
+```
+
+
