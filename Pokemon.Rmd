@@ -1,6 +1,6 @@
 ---
 title: "Pokemon"
-author: "Fahada_Alsehami"
+author: "DS612 P-Group"
 date: "2/28/2019"
 output: html_document
 ---
@@ -24,6 +24,7 @@ library(reshape2)
 library(rsconnect)
 library(knitr)
 library(ggplot2)
+library(boot)
 ```
 
 
@@ -57,7 +58,7 @@ head(Pokemon)
 
 ```{r}
 #Rename some variables to make our variable's name handy
-Pokemon <- rename(Pokemon, c(`Type 1` = "Type1", `Type 2` = "Type2", `Sp. Atk` = "Spec.Atk", `Sp. Def` = "Spec.Def"))
+Pokemon <- rename(Pokemon, c(`Type 1` = "Type1", `Type 2` = "Type2", `Sp. Atk` = "Sp.Atk", `Sp. Def` = "Sp.Def"))
 Pokemon
 ```
 
@@ -84,16 +85,25 @@ str(Pokemon)
 #2.1 (Pokemon Type 1)
 ```{r}
 # We set a factor to Pokemon$Type1 to represnt the Pokemon  one type as catefory data:
+#Level of Pokemon is the features of Pokemon
 type1_level <- factor(Pokemon$Type1)
 # We used levels function to obtain the value of Pokemon wiht Type 1
+#Level of Pokemon is the features of Pokemon
 levels(type1_level)
 ```
+
+
 #2.2 (Pokemon Type 2)
 ```{r}
 # We set a factor to Pokemon$Type2 to represnt the Pokemon  one type as catefory data:
 type2_level <- factor(Pokemon$Type2)
 # Also, we used levels function to obtain the value of Pokemon wiht Type 1
 levels(type2_level)
+```
+
+```{r}
+# Visuliaztion of Pokemon's level (features) by type
+
 ```
 
 ```{r}
@@ -117,7 +127,13 @@ ggplot(Pokemon, aes(x=fct_infreq(Type2))) +
 # As shown in the graph above describe the Pokemon with two types, and we notice that we have the hiehst freqi=uency is NA. However, we believe that NA is a XXX
 
 ```{r}
+#Omit attrubte NA from Type2 
+```
+
+```{r}
 # Here we used the decisiion tree
+detach("package:plyr", unload=TRUE) 
+
 treeMap <- Pokemon %>%
   mutate(Type2 = ifelse(is.na(Type2), paste("only", Type1), Type2),
          Type1 = Type1) %>%
@@ -129,6 +145,7 @@ treeMap <- Pokemon %>%
 
 ```
 ```{r}
+#Skipp this code
 #Here will define three types of Pokemons 
 type.string <- c('Grass', 'Fire', 'Water')
 type.colors <- c('#27A632', '#F07800', '#94D6CE')
@@ -171,12 +188,12 @@ defn <- ggplot(Pokemon, aes(x=Defense)) +
   labs(x="Pokemon Defense", y="Freq") 
 
 # Histogram of Special Attack
-speedAtk <- ggplot(Pokemon, aes(x=Spec.Atk)) +
+speedAtk <- ggplot(Pokemon, aes(x=Sp.Atk)) +
   geom_histogram(binwidth=4, fill="hotpink4", colour="black") + 
   labs(x="Special Attack", y="Freq") 
 
 # Histogram of Special Defense
-speedDef <- ggplot(Pokemon, aes(x=Spec.Def)) +
+speedDef <- ggplot(Pokemon, aes(x=Sp.Def)) +
   geom_histogram(binwidth=4, fill="brown2", colour="black") + 
   labs(x="Special Defense", y="Freq") 
 
@@ -214,13 +231,13 @@ d3 <- ggplot(Pokemon, aes(x=Defense, fill=Legendary)) +
   theme(legend.position="none")
 
 
-d4 <- ggplot(Pokemon, aes(x=Spec.Atk, fill=Legendary)) +
+d4 <- ggplot(Pokemon, aes(x=Sp.Atk, fill=Legendary)) +
   geom_density(alpha=0.8) +
   labs(x="Special Attack", y="Density") +
   theme(legend.position="none")
 
 
-d5 <- ggplot(Pokemon, aes(x=Spec.Def, fill=Legendary)) +
+d5 <- ggplot(Pokemon, aes(x=Sp.Def, fill=Legendary)) +
   geom_density(alpha=0.8) +
   labs(x="Special Defense", y="Density") +
   theme(legend.position="none")
@@ -239,10 +256,62 @@ grid.arrange(d1, d2, d3, d4, d5, d6, d7,
 ```
 # As the denisty curves for all of the variables we have of Pokemons show that the Normal Pokemons have less statistics than the Legendry Pokemans.  
 
+```{r}
+# 3D plot for XXX
+library("plot3D")
+# x, y and z coordinates
+x <- ht.l <- Pokemon$HP
+y <- speed.l <- Pokemon$Speed
+z <- speed.atk <- Pokemon$Sp.Atk
+
+#Create a function
+scatter3D(x, y, z, colvar = z, col = NULL, add = FALSE)
+text3D(x, y, z, labels, colvar = NULL, add = FALSE)
+points3D(x, y, z)
+lines3D(x, y, z)
+scatter2D(x, y, colvar = NULL, col = NULL, add = FALSE)
+text2D(x, y, labels, colvar = NULL, col = NULL, add = FALSE)
+```
+```{r}
+# 
+pokemon_legendary <- Pokemon %>% 
+     group_by(Legendary, Generation) %>%
+     mean(Attack, Defense) 
+pokemon_legendary
+
+plot_ly(Pokemon,x=~HP,y=~Defense,type="scatter",mode="markers",size=~total,color = ~Legendary,text=~name)
+
+
+```
+
+
+
 # Boxplot should be include here 
 
 
+```{r}
+# Boxplot of HP
 
+ggplot(Pokemon %>% group_by(Type1) %>% mutate(med=median(HP)),
+       aes(x=reorder(Type1, HP, FUN=median), y=HP)) +
+  geom_boxplot(aes(fill=med)) +
+  scale_fill_gradient(low="#999999", high="#E69F00") +
+  coord_flip() +
+  labs(x="First Type") +
+  theme_bw() +
+  theme(legend.position="none")
+```
+```{r}
+# Special Attack
+ggplot(Pokemon %>% group_by(Type1) %>% mutate(med=median(Sp.Atk)),
+       aes(x=reorder(Type1, HP, FUN=median), y=Sp.Atk)) +
+  geom_boxplot(aes(fill=med)) +
+  scale_fill_gradient(low="#999999", high="#E69F00") +
+  coord_flip() +
+  labs(x="First Type") +
+  theme_bw() +
+  theme(legend.position="none")
+```
 
 
 
@@ -259,8 +328,53 @@ grid.arrange(d1, d2, d3, d4, d5, d6, d7,
 #Cross-Validation method:
 # i will supply the updated code for the CV ASAP:
 ```{r}
-glm.fit = glm(data = Pokemon)
+#Leave one out validation
+glm.fit = glm(HP~Speed, data = Pokemon)
+summary(glm.fit)
 cv.glm(Pokemon, glm.fit)$delta
+```
+
+```{r}
+# loocv function:
+loocv = function(fit){
+     #Regression Diagnostics
+     h = lm.influence(fit)$h
+     mean((residuals(fit)/ (1-h)^2))
+     
+}
+loocv
+```
+
+```{r}
+#loop 
+Sum = 0
+y = rep(0,10)
+for(x in 1:10){
+     Sum = Sum + x
+     y[x] = x*2
+}
+y
+```
+
+```{r}
+#Cross Validation error 
+cv.error = rep(0,10)
+degree = 1:10
+for (d in degree) {
+     glm.fit~glm(HP~poly(Speed, d), data = Pokemon)
+     cv.error[d] = loocv(glm.fit)
+}
+plot(degree, cv.error, type = "b")
+```
+
+```{r}
+# 10 fold CV
+cv.error10 = rep(0,10)
+for(d in degree){
+     glm.fit = glm(HP~poly(Speed, d), data = Pokemon)
+     cv.error[10] = cv.glm(Pokemon,glm.fit, K=10)$delta[1]
+}
+plot(degree, cv.error10,col="red")
 ```
 # We will constructed Random Forest Algorthim to ....
 ```{r}
